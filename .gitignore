@@ -1,0 +1,14 @@
+# Binaries
+bin/
+main
+railway-assistant
+
+# Environment
+.env
+
+# Mock data
+mock-alert.json
+
+# Go specific
+go.sum
+vendor/
