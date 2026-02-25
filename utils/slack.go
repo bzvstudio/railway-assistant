@@ -27,10 +27,19 @@ func PrepareSlackMessage(payload types.RailwayAlert) []services.SlackBlock {
 
 	var fields []map[string]string
 
-	projectInfo := fmt.Sprintf("*Project:*\n%s", payload.Resource.Project.Name)
-	if payload.Resource.Service != nil {
-		projectInfo += fmt.Sprintf(" / %s", payload.Resource.Service.Name)
+	var pathParts []string
+
+	if env.GetBool("INCLUDE_WORKSPACE", true) && payload.Resource.Workspace.Name != "" {
+		pathParts = append(pathParts, payload.Resource.Workspace.Name)
 	}
+
+	pathParts = append(pathParts, payload.Resource.Project.Name)
+
+	if payload.Resource.Service != nil {
+		pathParts = append(pathParts, payload.Resource.Service.Name)
+	}
+
+	projectInfo := fmt.Sprintf("*Project:*\n%s", strings.Join(pathParts, " / "))
 	fields = append(fields, map[string]string{
 		"type": "mrkdwn",
 		"text": projectInfo,
