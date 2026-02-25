@@ -1,7 +1,6 @@
 # Railway Assistant
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/railway-assistant)
-[![Join Railway](https://img.shields.io/badge/Join%20Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.com?referralCode=1uJ_oA)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/railway-assistant?referralCode=1uJ_oA)
 
 A production-ready webhook service designed to integrate Railway with Telegram. It acts as a bridge, receiving webhook events from your Railway projects and forwarding them as formatted notifications to a Telegram chat or group.
 
