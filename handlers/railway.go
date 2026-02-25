@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"railway-assistant/services"
@@ -13,6 +13,11 @@ import (
 func RailwayAlertsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if !utils.IsAtLeastOneProviderEnabled() {
+		http.Error(w, "At least one notification provider must be enabled", http.StatusBadRequest)
 		return
 	}
 
@@ -32,15 +37,22 @@ func RailwayAlertsHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				fmt.Printf("Recovered from panic in alert processing: %v\n", r)
+				log.Printf("Recovered from panic in alert processing: %v\n", r)
 			}
 		}()
 
-		message, deployURL := utils.PrepareTelegramMessage(payload)
-		fmt.Printf("Sending Telegram message:\n%s\nURL: %s\n", message, deployURL)
+		if utils.IsTelegramEnabled() {
+			message, deployURL := utils.PrepareTelegramMessage(payload)
+			if err := services.SendTelegramMessage(message, deployURL); err != nil {
+				log.Printf("Failed to send telegram message: %v\n", err)
+			}
+		}
 
-		if err := services.SendTelegramMessage(message, deployURL); err != nil {
-			fmt.Printf("Failed to send telegram message: %v\n", err)
+		if utils.IsSlackEnabled() {
+			slackBlocks := utils.PrepareSlackMessage(payload)
+			if err := services.SendSlackMessage(slackBlocks); err != nil {
+				log.Printf("Failed to send slack message: %v\n", err)
+			}
 		}
 	}()
 }

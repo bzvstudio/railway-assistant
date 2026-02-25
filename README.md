@@ -7,7 +7,7 @@ A production-ready webhook service designed to integrate Railway with Telegram. 
 
 ## Features
 
-- **Real-time Notifications**: Get instant alerts for deployments, build failures, and service crashes.
+- **Real-time Notifications**: Get instant alerts for deployments, build failures, and service crashes via Telegram and Slack.
 - **Smart Formatting**: Messages are cleanly formatted with Markdown, including status emojis and direct links to your Railway projects, services, and deployments.
 - **Configurable Detail**: Control exactly what information is included in your notifications (Workspace, Branch, Commit, Author, etc.).
 - **Zero Dependencies**: Built with Go standard library only. No external frameworks or bloat.
@@ -15,9 +15,9 @@ A production-ready webhook service designed to integrate Railway with Telegram. 
 
 ## Setup Guide
 
-### 1. Create a Telegram Bot
+### 1. Create a Telegram Bot or Slack App
 
-You'll need a Telegram Bot to send messages.
+**Telegram:**
 
 1.  Open Telegram and search for **@BotFather**.
 2.  Send the command `/newbot`.
@@ -28,6 +28,13 @@ You'll need a Telegram Bot to send messages.
     - Forward a message from your chat/group to **@userinfobot**.
     - Or check `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` after sending a message to the bot.
     - This ID is your `TELEGRAM_CHAT_ID`.
+
+**Slack:**
+
+1.  Create a Slack App at [api.slack.com/apps](https://api.slack.com/apps).
+2.  Enable **Incoming Webhooks** for your app.
+3.  Create a new Webhook URL for the channel you want to post to.
+4.  Copy the **Webhook URL** (this is your `SLACK_WEBHOOK_URL`).
 
 ### 2. Configure Environment Variables
 
@@ -40,6 +47,8 @@ This service is configured entirely via environment variables.
 | `TELEGRAM_ENABLED`   | Set to `true` to enable Telegram notifications. |
 | `TELEGRAM_BOT_TOKEN` | The API token you got from BotFather.           |
 | `TELEGRAM_CHAT_ID`   | The ID of the user or group to receive alerts.  |
+| `SLACK_ENABLED`      | Set to `true` to enable Slack notifications.    |
+| `SLACK_WEBHOOK_URL`  | The Webhook URL from your Slack App.            |
 | `PORT`               | The port to listen on (default: `8080`).        |
 
 **Optional (Message Customization):**
@@ -83,5 +92,5 @@ _Details_
 🔄 Status: Success
 
 _Git_
-� _feat: add new dashboard components_
+💬 _feat: add new dashboard components_
 🌱 main • 👤 username
