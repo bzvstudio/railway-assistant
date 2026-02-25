@@ -54,6 +54,14 @@ func Logger(next http.Handler) http.Handler {
 		ww := &responseWriter{ResponseWriter: w, code: http.StatusOK}
 
 		defer func() {
+			if r.URL.Path == "/health" && ww.code == http.StatusOK {
+				return
+			}
+
+			if isNoise(r.URL.Path) {
+				return
+			}
+
 			log.Printf(
 				"[%s] %s %s %d %s",
 				r.Method,
@@ -66,6 +74,35 @@ func Logger(next http.Handler) http.Handler {
 
 		next.ServeHTTP(ww, r)
 	})
+}
+
+func isNoise(path string) bool {
+	exts := []string{
+		".php", ".env", ".git", ".yaml", ".xml",
+		".css", ".js", ".map", ".png", ".jpg", ".ico",
+		".asp", ".aspx", ".jsp", ".cgi",
+		".aws", ".s3cfg", ".conf", ".config",
+	}
+
+	for _, ext := range exts {
+		if strings.Contains(path, ext) {
+			return true
+		}
+	}
+
+	prefixes := []string{
+		"/wp-", "/actuator", "/_debugbar", "/debug",
+		"/api/", "/console", "/shell",
+		"/wordpress", "/wlwmanifest",
+	}
+
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(path, prefix) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func Recoverer(next http.Handler) http.Handler {
