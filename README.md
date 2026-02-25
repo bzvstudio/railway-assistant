@@ -41,14 +41,19 @@ This service is configured entirely via environment variables.
 
 **Required:**
 
-| Variable             | Description                                     |
-| :------------------- | :---------------------------------------------- |
-| `TELEGRAM_ENABLED`   | Set to `true` to enable Telegram notifications. |
-| `TELEGRAM_BOT_TOKEN` | The API token you got from BotFather.           |
-| `TELEGRAM_CHAT_ID`   | The ID of the user or group to receive alerts.  |
-| `SLACK_ENABLED`      | Set to `true` to enable Slack notifications.    |
-| `SLACK_WEBHOOK_URL`  | The Webhook URL from your Slack App.            |
-| `PORT`               | The port to listen on (default: `8080`).        |
+| Variable           | Description                                     |
+| :----------------- | :---------------------------------------------- |
+| `PORT`             | The port to listen on (default: `8080`).        |
+| `TELEGRAM_ENABLED` | Set to `true` to enable Telegram notifications. |
+| `SLACK_ENABLED`    | Set to `true` to enable Slack notifications.    |
+
+**Provider Specific (Required if enabled):**
+
+| Variable             | Description                                    |
+| :------------------- | :--------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN` | The API token you got from BotFather.          |
+| `TELEGRAM_CHAT_ID`   | The ID of the user or group to receive alerts. |
+| `SLACK_WEBHOOK_URL`  | The Webhook URL from your Slack App.           |
 
 **Optional (Message Customization):**
 
