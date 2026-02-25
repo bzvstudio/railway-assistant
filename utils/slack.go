@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"railway-assistant/env"
 	"railway-assistant/services"
 	"railway-assistant/types"
 	"strings"
@@ -29,7 +28,7 @@ func PrepareSlackMessage(payload types.RailwayAlert) []services.SlackBlock {
 
 	var pathParts []string
 
-	if env.GetBool("INCLUDE_WORKSPACE", true) && payload.Resource.Workspace.Name != "" {
+	if IsWorkspaceIncluded() && payload.Resource.Workspace.Name != "" {
 		pathParts = append(pathParts, payload.Resource.Workspace.Name)
 	}
 
@@ -59,7 +58,7 @@ func PrepareSlackMessage(payload types.RailwayAlert) []services.SlackBlock {
 		"fields": fields,
 	})
 
-	if env.GetBool("INCLUDE_STATUS", true) && payload.Details.Status != "" {
+	if IsStatusIncluded() && payload.Details.Status != "" {
 		statusText := fmt.Sprintf("*Status:*\n%s", TitleCase(payload.Details.Status))
 
 		blocks = append(blocks, services.SlackBlock{
@@ -73,20 +72,22 @@ func PrepareSlackMessage(payload types.RailwayAlert) []services.SlackBlock {
 		})
 	}
 
-	if env.GetBool("INCLUDE_COMMIT", true) && payload.Details.CommitMessage != "" {
+	if IsGitDedailsIncluded() {
 		blocks = append(blocks, services.SlackBlock{
 			"type": "divider",
 		})
 
 		var lineParts []string
 
-		if env.GetBool("INCLUDE_BRANCH", true) && payload.Details.Branch != "" {
+		if IsBranchIncluded() && payload.Details.Branch != "" {
 			lineParts = append(lineParts, fmt.Sprintf("🌿 *%s*", payload.Details.Branch))
 		}
 
-		lineParts = append(lineParts, fmt.Sprintf("💬 _%s_", payload.Details.CommitMessage))
+		if IsCommitIncluded() && payload.Details.CommitMessage != "" {
+			lineParts = append(lineParts, fmt.Sprintf("💬 _%s_", payload.Details.CommitMessage))
+		}
 
-		if env.GetBool("INCLUDE_AUTHOR", true) && payload.Details.CommitAuthor != "" {
+		if IsAuthorIncluded() && payload.Details.CommitAuthor != "" {
 			lineParts = append(lineParts, fmt.Sprintf("👤 *%s*", payload.Details.CommitAuthor))
 		}
 

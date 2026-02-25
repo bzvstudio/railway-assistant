@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"railway-assistant/env"
 	"railway-assistant/types"
 	"strings"
 )
@@ -20,7 +19,7 @@ func PrepareTelegramMessage(payload types.RailwayAlert) (string, string) {
 	sb.WriteString("📍 ")
 	pathParts := []string{}
 
-	if env.GetBool("INCLUDE_WORKSPACE", true) && payload.Resource.Workspace.Name != "" {
+	if IsWorkspaceIncluded() && payload.Resource.Workspace.Name != "" {
 		pathParts = append(pathParts, escapeMarkdown(payload.Resource.Workspace.Name))
 	}
 
@@ -37,7 +36,7 @@ func PrepareTelegramMessage(payload types.RailwayAlert) (string, string) {
 		sb.WriteString(" \\(Ephemeral\\)")
 	}
 
-	if env.GetBool("INCLUDE_STATUS", true) && payload.Details.Status != "" {
+	if IsStatusIncluded() && payload.Details.Status != "" {
 		sb.WriteString(fmt.Sprintf("\n🔄 Status: %s", escapeMarkdown(TitleCase(payload.Details.Status))))
 	}
 	sb.WriteString("\n\n")
@@ -45,18 +44,18 @@ func PrepareTelegramMessage(payload types.RailwayAlert) (string, string) {
 	var gitSb strings.Builder
 	hasGitInfo := false
 
-	if env.GetBool("INCLUDE_COMMIT", true) && payload.Details.CommitMessage != "" {
+	if IsCommitIncluded() && payload.Details.CommitMessage != "" {
 		gitSb.WriteString(fmt.Sprintf("💬 _%s_\n", escapeMarkdown(payload.Details.CommitMessage)))
 		hasGitInfo = true
 	}
 
 	metaParts := []string{}
 
-	if env.GetBool("INCLUDE_BRANCH", true) && payload.Details.Branch != "" {
+	if IsBranchIncluded() && payload.Details.Branch != "" {
 		metaParts = append(metaParts, fmt.Sprintf("🌱 %s", escapeMarkdown(payload.Details.Branch)))
 	}
 
-	if env.GetBool("INCLUDE_AUTHOR", true) && payload.Details.CommitAuthor != "" {
+	if IsAuthorIncluded() && payload.Details.CommitAuthor != "" {
 		metaParts = append(metaParts, fmt.Sprintf("👤 %s", escapeMarkdown(payload.Details.CommitAuthor)))
 	}
 
