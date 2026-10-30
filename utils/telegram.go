@@ -107,3 +107,28 @@ func escapeMarkdown(text string) string {
 	)
 	return replacer.Replace(text)
 }
+
+func PrepareTelegramStatusMessage(incident types.Incident, update types.IncidentUpdate) (string, string) {
+	var sb strings.Builder
+	emoji := GetIncidentStatusEmoji(update.Status)
+
+	sb.WriteString("🚦 *Railway Status*\n\n")
+	sb.WriteString(fmt.Sprintf("%s *%s*\n\n", emoji, escapeMarkdown(strings.ToUpper(update.Status))))
+	sb.WriteString(fmt.Sprintf("*%s*\n", escapeMarkdown(incident.Title)))
+
+	if len(incident.Components) > 0 {
+		sb.WriteString("\n*Affected*\n")
+		for _, c := range incident.Components {
+			name, impact := FormatComponent(c)
+			sb.WriteString(fmt.Sprintf("%s %s \\(%s\\)\n", GetImpactEmoji(c.Impact), escapeMarkdown(name), escapeMarkdown(impact)))
+		}
+	}
+
+	if update.Message != "" {
+		sb.WriteString("\n")
+		sb.WriteString(escapeMarkdown(TruncateText(update.Message, statusMessageLimit)))
+		sb.WriteString("\n")
+	}
+
+	return sb.String(), GetIncidentURL(incident)
+}

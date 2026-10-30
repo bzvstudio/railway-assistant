@@ -43,7 +43,7 @@ func RailwayAlertsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if utils.IsTelegramEnabled() {
 			message, deployURL := utils.PrepareTelegramMessage(payload)
-			if err := services.SendTelegramMessage(message, deployURL); err != nil {
+			if err := services.SendTelegramMessage(message, "View Deployment", deployURL); err != nil {
 				log.Printf("Failed to send telegram message: %v\n", err)
 			}
 		}
