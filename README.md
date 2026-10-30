@@ -2,11 +2,12 @@
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/railway-assistant?referralCode=1uJ_oA)
 
-A production-ready webhook service designed to integrate Railway with Telegram. It acts as a bridge, receiving webhook events from your Railway projects and forwarding them as formatted notifications to a Telegram chat or group.
+A production-ready webhook service designed to integrate Railway with Telegram and Slack. It acts as a bridge, receiving webhook events from your Railway projects and forwarding them as formatted notifications to a Telegram chat or Slack channel. It can also relay Railway platform incidents from [status.railway.com](https://status.railway.com) to the same destinations.
 
 ## Features
 
 - **Real-time Notifications**: Get instant alerts for deployments, build failures, and service crashes via Telegram and Slack.
+- **Railway Platform Status**: Optionally get notified when Railway posts or updates an incident on [status.railway.com](https://status.railway.com).
 - **Smart Formatting**: Messages are cleanly formatted with Markdown, including status emojis and direct links to your Railway projects, services, and deployments.
 - **Configurable Detail**: Control exactly what information is included in your notifications (Workspace, Branch, Commit, Author, etc.).
 - **Zero Dependencies**: Built with Go standard library only. No external frameworks or bloat.
@@ -67,6 +68,12 @@ Control what information appears in your alerts by setting these to `true` or `f
 | `INCLUDE_COMMIT`    | `true`  | Show the commit message.                                 |
 | `INCLUDE_AUTHOR`    | `true`  | Show the commit author.                                  |
 
+**Optional (Railway Status):**
+
+| Variable                 | Default | Description                                                                          |
+| :----------------------- | :------ | :----------------------------------------------------------------------------------- |
+| `RAILWAY_STATUS_ENABLED` | `false` | Set to `true` to relay Railway platform incidents to your enabled Telegram/Slack. |
+
 ### 3. Deploy & Connect
 
 1.  **Deploy this template** to your own Railway project.
@@ -77,6 +84,15 @@ Control what information appears in your alerts by setting these to `true` or `f
 6.  Create a new Webhook:
     - **Payload URL**: `https://<YOUR_SERVICE_URL>/railway/alerts`
     - **Event Types**: Select the events you want to be notified about (e.g., `Deployment Failed`, `Deployment Success`, `Volume Alert`, etc.).
+
+### 4. Railway Platform Status (Optional)
+
+Set `RAILWAY_STATUS_ENABLED=true` to also receive Railway platform incidents. No webhook setup is needed:
+
+- The service polls [status.railway.com](https://status.railway.com) every 2 minutes.
+- Every new incident update (Investigating, Identified, Monitoring, Resolved, ...) is sent to the same Telegram chat and/or Slack channel used for project alerts.
+- Updates that already exist when the service starts are skipped, so redeploys won't re-send old incidents (new updates to ongoing incidents are still sent). Updates posted while the service is down are not sent.
+- Run the service as a **single replica**, otherwise each replica will send its own copy of every status update.
 
 ## License
 
@@ -98,3 +114,17 @@ _Details_
 _Git_
 💬 _feat: add new dashboard components_
 🌱 main • 👤 username
+
+And a Railway status notification:
+
+🚦 _Railway Status_
+
+🟠 _INVESTIGATING_
+
+_Deployments stuck in initializing_
+
+_Affected_
+🟠 US East (Virginia, USA) / Deployments (Partial Outage)
+🟠 EU West (Amsterdam, Netherlands) / Deployments (Partial Outage)
+
+We are investigating reports of deployments being stuck in the initializing state.
