@@ -58,8 +58,6 @@ func StartRailwayStatusPoller() {
 	}
 }
 
-// newUpdates returns the updates not present in seen (oldest first) and the
-// set of all update IDs in the current status. A nil seen means first run.
 func newUpdates(seen map[string]struct{}, status *types.RailwayStatus) ([]pendingUpdate, map[string]struct{}) {
 	next := make(map[string]struct{})
 	var fresh []pendingUpdate
