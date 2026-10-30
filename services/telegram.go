@@ -37,7 +37,6 @@ func SendTelegramMessage(text, buttonText, buttonURL string) error {
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
-		// The request URL contains the bot token, so only return the underlying error.
 		var urlErr *neturl.Error
 		if errors.As(err, &urlErr) {
 			return fmt.Errorf("telegram api request failed: %w", urlErr.Err)
