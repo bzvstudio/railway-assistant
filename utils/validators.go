@@ -37,3 +37,7 @@ func IsAuthorIncluded() bool {
 func IsBranchIncluded() bool {
 	return env.GetBool("INCLUDE_BRANCH", true)
 }
+
+func IsRailwayStatusEnabled() bool {
+	return env.GetBool("RAILWAY_STATUS_ENABLED", false)
+}

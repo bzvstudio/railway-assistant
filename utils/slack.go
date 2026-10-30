@@ -128,3 +128,76 @@ func PrepareSlackMessage(payload types.RailwayAlert) []services.SlackBlock {
 
 	return blocks
 }
+
+func PrepareSlackStatusMessage(incident types.Incident, update types.IncidentUpdate) []services.SlackBlock {
+	var blocks []services.SlackBlock
+
+	emoji := GetIncidentStatusEmoji(update.Status)
+	headerText := fmt.Sprintf("%s RAILWAY STATUS: %s", emoji, strings.ToUpper(update.Status))
+
+	blocks = append(blocks, services.SlackBlock{
+		"type": "header",
+		"text": map[string]interface{}{
+			"type":  "plain_text",
+			"text":  headerText,
+			"emoji": true,
+		},
+	})
+
+	text := fmt.Sprintf("*%s*", escapeSlack(incident.Title))
+	if update.Message != "" {
+		text += "\n" + escapeSlack(TruncateText(update.Message, statusMessageLimit))
+	}
+
+	blocks = append(blocks, services.SlackBlock{
+		"type": "section",
+		"text": map[string]string{
+			"type": "mrkdwn",
+			"text": text,
+		},
+	})
+
+	if len(incident.Components) > 0 {
+		var componentParts []string
+		for _, c := range incident.Components {
+			name, impact := FormatComponent(c)
+			componentParts = append(componentParts, fmt.Sprintf("%s %s (%s)", GetImpactEmoji(c.Impact), escapeSlack(name), impact))
+		}
+
+		blocks = append(blocks, services.SlackBlock{
+			"type": "context",
+			"elements": []map[string]string{
+				{
+					"type": "mrkdwn",
+					"text": strings.Join(componentParts, "  •  "),
+				},
+			},
+		})
+	}
+
+	blocks = append(blocks, services.SlackBlock{
+		"type": "actions",
+		"elements": []map[string]interface{}{
+			{
+				"type": "button",
+				"text": map[string]interface{}{
+					"type":  "plain_text",
+					"text":  "View Incident 🚦",
+					"emoji": true,
+				},
+				"url": GetIncidentURL(incident),
+			},
+		},
+	})
+
+	return blocks
+}
+
+func escapeSlack(text string) string {
+	replacer := strings.NewReplacer(
+		"&", "&amp;",
+		"<", "&lt;",
+		">", "&gt;",
+	)
+	return replacer.Replace(text)
+}
