@@ -3,9 +3,11 @@ package services
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	neturl "net/url"
 	"railway-assistant/env"
 )
 
@@ -35,7 +37,12 @@ func SendTelegramMessage(text, buttonText, buttonURL string) error {
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
-		return err
+		// The request URL contains the bot token, so only return the underlying error.
+		var urlErr *neturl.Error
+		if errors.As(err, &urlErr) {
+			return fmt.Errorf("telegram api request failed: %w", urlErr.Err)
+		}
+		return fmt.Errorf("telegram api request failed")
 	}
 	defer resp.Body.Close()
 
