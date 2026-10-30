@@ -10,8 +10,10 @@ jobs:
     steps:
       - name: Require develop as source branch
         if: github.head_ref != 'develop'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          echo "Pull requests into main must come from develop (got: ${{ github.head_ref }})"
+          echo "Pull requests into main must come from develop (got: $HEAD_REF)"
           exit 1
       - name: Source branch is develop
         if: github.head_ref == 'develop'
