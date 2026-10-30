@@ -18,3 +18,26 @@ jobs:
       - name: Source branch is develop
         if: github.head_ref == 'develop'
         run: echo "Source branch is develop"
+
+  no-claude-coauthor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject Claude co-author trailers
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          offending=$(git log --format='%H' "$BASE_SHA..$HEAD_SHA" | while read -r sha; do
+            if git log -1 --format='%B' "$sha" | grep -qiE '^co-authored-by:.*(claude|anthropic)'; then
+              git log -1 --format='  %h %s' "$sha"
+            fi
+          done)
+          if [ -n "$offending" ]; then
+            echo "Commits must not be co-authored by Claude:"
+            echo "$offending"
+            exit 1
+          fi
+          echo "No Claude co-author trailers found"
